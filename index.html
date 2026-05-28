@@ -232,8 +232,7 @@ async function verstuur() {
   // Validatie
   const contactDeels = [naam, telefoon, email].filter(Boolean).length;
   if (contactDeels > 0 && contactDeels < 3) {
-    toonStatus('err', 'Vul naam, telefoon én e-mail in — of laat alle drie leeg voor een anonieme melding.');
-    document.getElementById('contact-details').open = true;
+    toonStatus('err', 'Vul naam, telefoon én e-mail in (onder "Uw gegevens") — of laat alle drie leeg voor een anonieme melding.');
     return;
   }
   if (!beschrijving) {
