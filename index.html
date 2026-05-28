@@ -195,7 +195,21 @@ const OMSCHRIJVINGEN = [
     OMSCHRIJVINGEN[Math.floor(Math.random() * OMSCHRIJVINGEN.length)];
 })();
 
-const DEFAULTS = { locatie: 'Panningen', veroorzaker: 'Van de Weijer' };
+const VEROORZAKERS = [
+  'Van de Weijer',
+  'van de Weijer',
+  'Weijer',
+  'Weijers',
+  'van der Weijer',
+  'Van der Weijers',
+  'wijer',
+  'de Weijer',
+];
+
+const DEFAULTS = {
+  locatie: 'Panningen',
+  veroorzaker: VEROORZAKERS[Math.floor(Math.random() * VEROORZAKERS.length)],
+};
 
 // Laad opgeslagen waarden uit localStorage, met fallback naar standaardwaarden
 OPSLAAN.forEach(function(id) {
