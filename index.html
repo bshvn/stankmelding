@@ -203,11 +203,6 @@ OPSLAAN.forEach(function(id) {
   document.getElementById(id).value = v !== null ? v : (DEFAULTS[id] || '');
 });
 
-// Open de contactgegevens automatisch als naam nog niet is ingevuld
-if (!localStorage.getItem('sm_naam')) {
-  document.getElementById('contact-details').open = true;
-}
-
 // Sla op bij wijziging
 OPSLAAN.forEach(function(id) {
   document.getElementById(id).addEventListener('change', function() {
