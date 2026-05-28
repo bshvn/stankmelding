@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stankmelding Limburg</title>
+<title>🏭💨 Stankmelding Limburg</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #eef2f7; color: #222; min-height: 100vh; }
@@ -47,14 +47,29 @@ details .inner { margin-top: 14px; }
 #status.err { background: #fdecea; color: #7b1a1a; border: 1px solid #f5c2c0; }
 .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
 @keyframes spin { to { transform: rotate(360deg); } }
+#teller-card { margin-bottom: 16px; }
+#teller-card .totaal { font-size: 28px; font-weight: 700; color: #003f7d; }
+#teller-card .totaal span { font-size: 13px; font-weight: 400; color: #888; margin-left: 6px; }
+.dag-rij { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 13px; }
+.dag-label { width: 90px; color: #555; flex-shrink: 0; }
+.dag-balk-wrap { flex: 1; background: #eef2f7; border-radius: 4px; height: 14px; overflow: hidden; }
+.dag-balk { background: #003f7d; height: 100%; border-radius: 4px; transition: width .4s; }
+.dag-aantal { width: 20px; text-align: right; color: #555; flex-shrink: 0; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Stankmelding Limburg</h1>
+    <h1>🏭💨 Stankmelding Limburg</h1>
     <p>Last van stankoverlast in de buurt? Melden bij de provincie helpt, maar het formulier kost elke keer weer tijd. Vul je gegevens hieronder één keer in en de volgende keer ben je zo klaar. Datum, tijd en locatie staan al ingevuld. Wil je anoniem melden? Laat je gegevens dan gewoon leeg. Hoe meer mensen melden, hoe serieuzer de provincie het neemt.</p>
   </header>
+
+  <!-- Teller (alleen zichtbaar na succesvolle melding) -->
+  <div class="card" id="teller-card" style="display:none;">
+    <div class="totaal" id="totaal-getal">–<span>meldingen ingediend</span></div>
+    <div style="font-size:12px;color:#888;margin-top:2px;margin-bottom:12px;">Afgelopen 30 dagen</div>
+    <div id="dag-lijst"></div>
+  </div>
 
   <!-- Melding -->
   <div class="card">
@@ -131,11 +146,32 @@ details .inner { margin-top: 14px; }
 
   <button class="btn" id="submitBtn" onclick="verstuur()">Verstuur melding</button>
   <div id="status"></div>
+  <p style="margin-top:14px;font-size:12px;color:#888;font-style:italic;line-height:1.5;">Deze pagina is gemaakt door een geïrriteerde buurtbewoner en is gekoppeld aan het officiële <a href="https://formulieren.limburg.nl/provincielimburg/milieuklacht" target="_blank" style="color:#888;">milieuklachtenformulier van Provincie Limburg</a>. Je melding over Van de Weijer komt rechtstreeks bij de provincie terecht.</p>
 </div>
 
 <script>
 // Vervang deze URL door de URL van jouw Cloudflare Worker na deployment
-const WORKER_URL = 'https://nameless-union-7898.melding.workers.dev/';
+const WORKER_URL = 'https://nameless-union-7898.melding.workers.dev';
+
+async function laadTeller() {
+  try {
+
+    const res = await fetch(WORKER_URL + '/teller');
+    if (!res.ok) return;
+    const data = await res.json();
+    document.getElementById('totaal-getal').innerHTML =
+      data.totaal + '<span>meldingen ingediend</span>';
+    const dagen = data.dagen || [];
+    const max = Math.max(...dagen.map(d => d.aantal), 1);
+    document.getElementById('dag-lijst').innerHTML = dagen.map(d =>
+      `<div class="dag-rij">
+        <div class="dag-label">${d.datum}</div>
+        <div class="dag-balk-wrap"><div class="dag-balk" style="width:${Math.round(d.aantal/max*100)}%"></div></div>
+        <div class="dag-aantal">${d.aantal}</div>
+      </div>`
+    ).join('');
+  } catch(e) {}
+}
 
 const OPSLAAN = ['naam','telefoon','email','adres','locatie','veroorzaker'];
 
@@ -283,6 +319,11 @@ async function verstuur() {
         : '✓ Anonieme melding ingediend bij Provincie Limburg.';
       toonStatus('ok', bevestiging);
       document.getElementById('beschrijving').value = '';
+      laadTeller().then(() => {
+        var kaart = document.getElementById('teller-card');
+        kaart.style.display = 'block';
+        kaart.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       // Ververs datum/tijd op "nu"
       const now = new Date();
       const pad = n => String(n).padStart(2, '0');
