@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stankmelding Limburg</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #eef2f7; color: #222; min-height: 100vh; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
+header { margin-bottom: 24px; }
+header h1 { font-size: 22px; color: #003f7d; font-weight: 700; }
+header p { color: #666; font-size: 14px; margin-top: 4px; }
+.card { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.card h2 { font-size: 14px; font-weight: 600; color: #003f7d; margin-bottom: 14px; text-transform: uppercase; letter-spacing: .04em; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 13px; font-weight: 500; color: #444; margin-bottom: 4px; }
+.field label .req { color: #c00; }
+.field input, .field textarea, .field select {
+  display: block; width: 100%; padding: 10px 12px;
+  border: 1.5px solid #d0d0d0; border-radius: 7px;
+  font-size: 15px; color: #222; font-family: inherit;
+  transition: border-color .15s;
+  -webkit-appearance: none;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  outline: 0; border-color: #003f7d; box-shadow: 0 0 0 3px rgba(0,63,125,.1);
+}
+.field textarea { height: 100px; resize: vertical; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hint { font-size: 12px; color: #888; margin-top: 3px; }
+details summary { font-size: 13px; color: #003f7d; cursor: pointer; font-weight: 500; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: '▶ '; font-size: 10px; }
+details[open] summary::before { content: '▼ '; }
+details .inner { margin-top: 14px; }
+.btn {
+  display: block; width: 100%; padding: 15px;
+  background: #003f7d; color: #fff; border: none; border-radius: 8px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  transition: background .15s;
+}
+.btn:hover { background: #002d5c; }
+.btn:disabled { background: #99b0cc; cursor: not-allowed; }
+#status { display: none; margin-top: 14px; padding: 14px 16px; border-radius: 8px; font-size: 14px; line-height: 1.5; }
+#status.ok { background: #e6f4ea; color: #1a5e30; border: 1px solid #b7dfbf; }
+#status.err { background: #fdecea; color: #7b1a1a; border: 1px solid #f5c2c0; }
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Stankmelding Limburg</h1>
+    <p>Last van stankoverlast in de buurt? Melden bij de provincie helpt, maar het formulier kost elke keer weer tijd. Vul je gegevens hieronder één keer in en de volgende keer ben je zo klaar. Datum, tijd en locatie staan al ingevuld. Wil je anoniem melden? Laat je gegevens dan gewoon leeg. Hoe meer mensen melden, hoe serieuzer de provincie het neemt.</p>
+  </header>
+
+  <!-- Melding -->
+  <div class="card">
+    <h2>Melding</h2>
+    <div class="field">
+      <label for="beschrijving">Beschrijving <span class="req">*</span></label>
+      <textarea id="beschrijving" placeholder="Omschrijf de stankoverlast: soort geur, intensiteit (1–10), windrichting..."></textarea>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="datum">Datum <span class="req">*</span></label>
+        <input type="date" id="datum">
+      </div>
+      <div class="field">
+        <label for="tijdstip">Tijdstip <span class="req">*</span></label>
+        <input type="time" id="tijdstip">
+      </div>
+    </div>
+    <div class="field">
+      <label for="nog_overlast">Heeft u op dit moment nog overlast?</label>
+      <select id="nog_overlast">
+        <option value="Ja">Ja</option>
+        <option value="Nee">Nee</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Contactgegevens -->
+  <div class="card">
+    <details id="contact-details">
+      <summary>Uw gegevens <span style="font-weight:400;color:#888;">(optioneel)</span></summary>
+      <div class="inner">
+        <p class="hint" style="margin-bottom:10px;">Laat leeg om anoniem in te dienen. Vul alle drie in voor een terugkoppeling per e-mail.</p>
+        <div class="field">
+          <label for="naam">Naam</label>
+          <input type="text" id="naam" autocomplete="name" placeholder="Voor- en achternaam">
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="telefoon">Telefoon</label>
+            <input type="tel" id="telefoon" autocomplete="tel" placeholder="06-12345678">
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" autocomplete="email" placeholder="naam@voorbeeld.nl">
+          </div>
+        </div>
+        <div class="field">
+          <label for="adres">Adres</label>
+          <input type="text" id="adres" autocomplete="street-address" placeholder="Straatnaam 1, Plaatsnaam">
+        </div>
+        <p class="hint">Uw gegevens worden opgeslagen in uw browser en alleen aan Provincie Limburg verstuurd.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Standaardwaarden -->
+  <div class="card">
+    <details>
+      <summary>Standaardwaarden</summary>
+      <div class="inner">
+        <div class="field">
+          <label for="locatie">Locatie overlast</label>
+          <input type="text" id="locatie" placeholder="Bijv. Dorpsstraat, gemeente Stein">
+        </div>
+        <div class="field">
+          <label for="veroorzaker">Mogelijke veroorzaker</label>
+          <input type="text" id="veroorzaker" placeholder="Bijv. Chemelot, Van de Weijer">
+        </div>
+        <p class="hint">Deze waarden worden vooraf ingevuld en zijn per melding aanpasbaar.</p>
+      </div>
+    </details>
+  </div>
+
+  <button class="btn" id="submitBtn" onclick="verstuur()">Verstuur melding</button>
+  <div id="status"></div>
+</div>
+
+<script>
+// Vervang deze URL door de URL van jouw Cloudflare Worker na deployment
+const WORKER_URL = 'https://nameless-union-7898.melding.workers.dev/';
+
+const OPSLAAN = ['naam','telefoon','email','adres','locatie','veroorzaker'];
+
+const OMSCHRIJVINGEN = [
+  'Stankoverlast',
+  'stankoverlast.',
+  'Stankoverlast.',
+  'Penetrante geur',
+  'penetrante geur.',
+  'Penetrante geur.',
+  'Indringende geur',
+  'indringende geur.',
+  'Indringende geur.',
+  'Onaangename stank',
+  'onaangename stank.',
+  'Onaangename stank.',
+  'Vieze lucht',
+  'vieze lucht.',
+  'Vieze lucht.',
+  'Chemische geur',
+  'chemische geur.',
+  'Chemische geur.',
+  'Doordringende stank',
+  'doordringende stank.',
+  'Doordringende stank.',
+  'Zure geur',
+  'zure geur.',
+  'Zure geur.',
+  'Weeïge stank',
+  'weeïge stank.',
+  'Weeïge stank.',
+  'Sterke stank',
+  'sterke stank.',
+  'Sterke stank.',
+  'Chemische lucht',
+  'chemische lucht.',
+  'Chemische lucht.',
+  'Indringende lucht',
+  'indringende lucht.',
+  'Indringende lucht.',
+  'Onaangename lucht',
+  'onaangename lucht.',
+  'Onaangename lucht.',
+];
+
+// Vul datum en tijd in op "nu"
+(function() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  document.getElementById('datum').value =
+    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  document.getElementById('tijdstip').value =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  // Vul een willekeurige omschrijving in als beginpunt
+  document.getElementById('beschrijving').value =
+    OMSCHRIJVINGEN[Math.floor(Math.random() * OMSCHRIJVINGEN.length)];
+})();
+
+const DEFAULTS = { locatie: 'Panningen', veroorzaker: 'Van de Weijer' };
+
+// Laad opgeslagen waarden uit localStorage, met fallback naar standaardwaarden
+OPSLAAN.forEach(function(id) {
+  var v = localStorage.getItem('sm_' + id);
+  document.getElementById(id).value = v !== null ? v : (DEFAULTS[id] || '');
+});
+
+// Open de contactgegevens automatisch als naam nog niet is ingevuld
+if (!localStorage.getItem('sm_naam')) {
+  document.getElementById('contact-details').open = true;
+}
+
+// Sla op bij wijziging
+OPSLAAN.forEach(function(id) {
+  document.getElementById(id).addEventListener('change', function() {
+    localStorage.setItem('sm_' + id, this.value);
+  });
+});
+
+async function verstuur() {
+  const btn    = document.getElementById('submitBtn');
+  const status = document.getElementById('status');
+
+  // Verzamel waarden
+  const naam       = document.getElementById('naam').value.trim();
+  const telefoon   = document.getElementById('telefoon').value.trim();
+  const email      = document.getElementById('email').value.trim();
+  const adres      = document.getElementById('adres').value.trim();
+  const beschrijving = document.getElementById('beschrijving').value.trim();
+  const locatie    = document.getElementById('locatie').value.trim();
+  const veroorzaker = document.getElementById('veroorzaker').value.trim();
+  const nog_overlast = document.getElementById('nog_overlast').value;
+
+  // Datum omzetten van yyyy-mm-dd naar dd-mm-yyyy
+  const datumRaw = document.getElementById('datum').value;
+  const datum    = datumRaw ? datumRaw.split('-').reverse().join('-') : '';
+  const tijdstip = document.getElementById('tijdstip').value;
+
+  // Validatie
+  const contactDeels = [naam, telefoon, email].filter(Boolean).length;
+  if (contactDeels > 0 && contactDeels < 3) {
+    toonStatus('err', 'Vul naam, telefoon én e-mail in — of laat alle drie leeg voor een anonieme melding.');
+    document.getElementById('contact-details').open = true;
+    return;
+  }
+  if (!beschrijving) {
+    toonStatus('err', 'Vul een beschrijving in van de stankoverlast.');
+    document.getElementById('beschrijving').focus();
+    return;
+  }
+  if (!datum || !tijdstip) {
+    toonStatus('err', 'Vul datum en tijdstip in.');
+    return;
+  }
+  if (WORKER_URL === 'JOUW_WORKER_URL_HIER') {
+    toonStatus('err', 'De worker-URL is nog niet ingesteld. Zie de installatie-instructies.');
+    return;
+  }
+
+  // Verstuur
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Bezig met versturen…';
+  status.style.display = 'none';
+
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ naam, telefoon, email, adres, beschrijving, locatie, veroorzaker, datum, tijdstip, nog_overlast }),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      const bevestiging = naam
+        ? '✓ Melding ingediend bij Provincie Limburg. U ontvangt een bevestiging per e-mail.'
+        : '✓ Anonieme melding ingediend bij Provincie Limburg.';
+      toonStatus('ok', bevestiging);
+      document.getElementById('beschrijving').value = '';
+      // Ververs datum/tijd op "nu"
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      document.getElementById('datum').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+      document.getElementById('tijdstip').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    } else {
+      toonStatus('err', 'Fout bij indienen: ' + (result.error || 'Onbekende fout. Probeer het opnieuw.'));
+    }
+  } catch (e) {
+    toonStatus('err', 'Verbindingsfout. Controleer uw internetverbinding en probeer het opnieuw.');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Verstuur melding';
+}
+
+function toonStatus(type, tekst) {
+  var el = document.getElementById('status');
+  el.className = type;
+  el.textContent = tekst;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+</body>
+</html>
