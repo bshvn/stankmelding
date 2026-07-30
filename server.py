@@ -263,12 +263,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
         try:
             with open(HTML_FILE, 'r', encoding='utf-8') as f:
                 html = f.read()
-            # Vervang WORKER_URL (placeholder of een reeds ingevulde deploy-URL) door het lokale endpoint
-            html = re.sub(
-                r"const WORKER_URL = '[^']*';",
-                f"const WORKER_URL = 'http://localhost:{PORT}/verstuur';",
-                html,
-            )
+            # Alleen lokaal WORKER_URL naar het lokale endpoint herschrijven — op Render (RENDER=true)
+            # serveert dit script de productie-HTML, die zijn eigen hardcoded WORKER_URL moet behouden.
+            if not os.environ.get('RENDER'):
+                html = re.sub(
+                    r"const WORKER_URL = '[^']*';",
+                    f"const WORKER_URL = 'http://localhost:{PORT}/verstuur';",
+                    html,
+                )
             body = html.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
